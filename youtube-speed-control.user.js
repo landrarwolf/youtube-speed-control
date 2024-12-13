@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         YouTube Speed Control
-// @name:zh      YouTube 按键加速播放
+// @name:zh-CN   YouTube 按键加速播放
 // @namespace    https://github.com/landrarwolf/youtube-speed-control
 // @version      0.4
 // @description  Hold right arrow key to speed up YouTube video to 2.5x, without interfering with the forward function
-// @description:zh 在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
+// @description:zh-CN 在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
 // @author       landrarwolf
 // @match        https://www.youtube.com/*
 // @license      MIT
