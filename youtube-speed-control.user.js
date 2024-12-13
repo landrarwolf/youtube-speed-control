@@ -2,7 +2,7 @@
 // @name         YouTube Speed Control
 // @name:zh-CN   YouTube 按键加速播放
 // @namespace    https://github.com/landrarwolf/youtube-speed-control
-// @version      0.5
+// @version      0.6
 // @description  Hold right arrow key to speed up YouTube video to 2.5x, without interfering with the forward function
 // @description:zh-CN 在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
 // @icon         https://img.icons8.com/?size=100&id=9991&format=png&color=000000
@@ -14,13 +14,19 @@
 // @grant        none
 // ==/UserScript==
 
+// 用户可配置选项
+const config = {
+    speedMultiplier: 2.5, // 加速倍数
+    keyPressDelay: 200    // 按键延迟时间（毫秒）
+};
+
 // 在文件开头添加语言配置
 const i18n = {
     en: {
-        speedIndicator: '⚡ 2.5x Speed'
+        speedIndicator: `⚡ ${config.speedMultiplier}x Speed`
     },
     zh: {
-        speedIndicator: '⚡ 2.5x 加速中'
+        speedIndicator: `⚡ ${config.speedMultiplier}x 加速中`
     }
 };
 
@@ -91,15 +97,15 @@ function getCurrentLanguage() {
                     const video = document.querySelector('video');
                     if (video) {
                         normalSpeed = video.playbackRate;
-                        video.playbackRate = 2.5;
+                        video.playbackRate = config.speedMultiplier;
                         isSpeedUp = true;
                         showSpeedIndicator();
                     }
                     event.preventDefault();
                     event.stopPropagation();
-                }, 200);
+                }, config.keyPressDelay);
             } else {
-                if (Date.now() - pressStartTime > 200) {
+                if (Date.now() - pressStartTime > config.keyPressDelay) {
                     event.preventDefault();
                     event.stopPropagation();
                 }
