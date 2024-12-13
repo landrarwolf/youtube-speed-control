@@ -1,16 +1,10 @@
-# YouTube Speed Control | YouTube 按键加速播放
+# YouTube Speed Control
 
-[![License](https://img.shields.io/github/license/YOUR_USERNAME/YOUR_REPO)](LICENSE)
+[![License](https://img.shields.io/github/license/landrarwolf/youtube-speed-control)](LICENSE)
 [![Greasy Fork](https://img.shields.io/badge/Greasy%20Fork-install-green)](https://update.greasyfork.org/scripts/520580/YouTube%20%E6%8C%89%E9%94%AE%E5%8A%A0%E9%80%9F%E6%92%AD%E6%94%BE.user.js)
 ![Platform](https://img.shields.io/badge/Platform-YouTube-red)
 
-[English](#english) | [中文](#中文)
-
-# English
-
 > 🚀 Speed up YouTube videos instantly by holding the right arrow key - simple yet powerful!
-
-![Demo](path_to_your_demo.gif)
 
 ## ✨ Features
 - **Quick Press**: Tap right arrow → Skip forward 5 seconds (YouTube default)
@@ -43,11 +37,9 @@
 
 ---
 
-# 中文
+# 按键加速播放 (中文说明)
 
 > 🚀 通过按住右箭头键即可快速加速YouTube视频播放 - 简单而强大！
-
-![演示](path_to_your_demo.gif)
 
 ## ✨ 功能特点
 - **快速点按**：点按右箭头 → 快进5秒（YouTube默认功能）
@@ -80,5 +72,5 @@
 
 ---
 
-## 📄 License | 许可证
+## 📄 License
 MIT License © 2024

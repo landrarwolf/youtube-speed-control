@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         YouTube 按键加速播放
-// @name:en      YouTube Speed Control
+// @name         YouTube Speed Control
+// @name:zh      YouTube 按键加速播放
 // @namespace    https://github.com/landrarwolf/youtube-speed-control
 // @version      0.4
-// @description  在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
-// @description:en  Hold right arrow key to speed up YouTube video to 2.5x, without interfering with the forward function
+// @description  Hold right arrow key to speed up YouTube video to 2.5x, without interfering with the forward function
+// @description:zh 在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
 // @author       landrarwolf
 // @match        https://www.youtube.com/*
 // @license      MIT
@@ -12,6 +12,22 @@
 // @homepageURL  https://github.com/landrarwolf/youtube-speed-control
 // @grant        none
 // ==/UserScript==
+
+// 在文件开头添加语言配置
+const i18n = {
+    en: {
+        speedIndicator: '⚡ 2.5x Speed'
+    },
+    zh: {
+        speedIndicator: '⚡ 2.5x 加速中'
+    }
+};
+
+// 获取当前语言
+function getCurrentLanguage() {
+    const lang = navigator.language.toLowerCase().split('-')[0];
+    return lang in i18n ? lang : 'en';
+}
 
 (function() {
     'use strict';
@@ -40,7 +56,8 @@
             display: none;
             transition: opacity 0.2s;
         `;
-        indicator.textContent = '⚡ 2.5x 加速中';
+        // 使用当前语言的文本
+        indicator.textContent = i18n[getCurrentLanguage()].speedIndicator;
         document.body.appendChild(indicator);
         return indicator;
     }
