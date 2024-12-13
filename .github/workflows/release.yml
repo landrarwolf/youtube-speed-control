@@ -19,22 +19,18 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV  # 从标签中获取版本号并存储到环境变量
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT  # 从标签中获取版本号并存储到环境变量
 
       - name: Extract changelog
         id: extract_changelog
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          # 从 README.md 中提取当前版本的变更日志
-          CHANGELOG=$(sed -n "/- \*\*${VERSION}\*\*/,/- \*\*v/p" README.md | sed '$d')
-          if [ -z "$CHANGELOG" ]; then
-            VERSION_NO_V=${VERSION#v}
-            CHANGELOG=$(sed -n "/- \*\*v${VERSION_NO_V}\*\*/,/- \*\*v/p" README.md | sed '$d')
-          fi
-          # 将变更日志存储到环境变量
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          echo "$CHANGELOG" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # 提取指定版本的更新日志（包括版本号行和内容）
+          CHANGELOG=$(awk '/- \*\*'"${VERSION}"'\*\*/{p=NR+2}(NR<=p){print}' README.md)
+          # 输出到GITHUB_OUTPUT
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v1  # 使用 GitHub Action 创建发布
