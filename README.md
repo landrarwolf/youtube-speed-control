@@ -32,6 +32,9 @@
 5. Adjust `speedMultiplier` and `keyPressDelay` in the script for custom behavior
 
 ## 📝 Changelog
+- **v0.7**
+  - Separated Chinese documentation into README-ZH.md
+  - Improved release workflow
 - **v0.6**
   - Added configurable options for speed multiplier and key press delay
 - **v0.5**
