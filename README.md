@@ -32,6 +32,11 @@
 5. Adjust `speedMultiplier` and `keyPressDelay` in the script for custom behavior
 
 ## 📝 Changelog
+- **v0.9**
+  - Added dark/light theme support for speed indicator
+  - Improved visual feedback with blur effect
+  - Added cleanup on page unload
+  - Enhanced error handling
 - **v0.8**
   - Fixed the conflict between speed-up and forward skip functions
   - Improved key press handling logic
