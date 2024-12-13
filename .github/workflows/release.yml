@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*' # 触发条件：推送以v开头的标签，如 v0.5
+      - 'v*'
 
 jobs:
   build:
@@ -20,7 +20,15 @@ jobs:
       - name: Extract changelog
         id: extract_changelog
         run: |
-          CHANGELOG=$(awk '/## 📝 Changelog/{flag=1;next}/---/{if(flag==1)exit}flag' README.md)
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          # 提取指定版本的更新日志
+          CHANGELOG=$(sed -n "/- \*\*${VERSION}\*\*/,/- \*\*v/p" README.md | sed '$d')
+          # 如果没找到，尝试不带v的版本号
+          if [ -z "$CHANGELOG" ]; then
+            VERSION_NO_V=${VERSION#v}
+            CHANGELOG=$(sed -n "/- \*\*v${VERSION_NO_V}\*\*/,/- \*\*v/p" README.md | sed '$d')
+          fi
+          # 输出到GITHUB_OUTPUT
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -30,9 +38,10 @@ jobs:
         with:
           name: Release ${{ steps.get_version.outputs.VERSION }}
           body: |
+            # Changelog
             ${{ steps.extract_changelog.outputs.CHANGELOG }}
             
-            ## Installation
+            # Installation
             1. Install [Tampermonkey](https://www.tampermonkey.net/) or other userscript manager
             2. [Click here to install](https://github.com/landrarwolf/youtube-speed-control/releases/download/${{ steps.get_version.outputs.VERSION }}/youtube-speed-control.user.js)
           files: |
@@ -41,4 +50,4 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
