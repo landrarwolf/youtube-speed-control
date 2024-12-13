@@ -29,6 +29,10 @@
 4. The speed indicator will show when active
 
 ## 📝 Changelog
+- **v0.5**
+  - Added i18n support for speed indicator
+  - Changed default language to English
+  - Added GitHub Actions workflow for releases
 - **v0.4**
   - Added visual speed indicator
   - Improved user experience
@@ -66,13 +70,17 @@
 4. 加速时会显示速度指示器
 
 ## 📝 更新日志
+- **v0.5**
+  - Added i18n support for speed indicator
+  - Changed default language to English
+  - Added GitHub Actions workflow for releases
 - **v0.4**
-  - 新增速度视觉提示
-  - 优化使用体验
+  - Added visual speed indicator
+  - Improved user experience
 - **v0.3**
-  - 修复与YouTube快进功能的冲突
+  - Fixed conflict with YouTube's skip forward function
 - **v0.2**
-  - 首次发布
+  - Initial release
 
 ---
 

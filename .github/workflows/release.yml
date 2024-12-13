@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*' # 触发条件：推送以v开头的标签，如 v0.4
+      - 'v*' # 触发条件：推送以v开头的标签，如 v0.5
 
 jobs:
   build:
@@ -17,20 +17,20 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Get Changelog Entry
-        id: changelog_reader
-        uses: mindsers/changelog-reader-action@v2
-        with:
-          version: ${{ steps.get_version.outputs.VERSION }}
-          path: ./README.md
+      - name: Extract changelog
+        id: extract_changelog
+        run: |
+          CHANGELOG=$(awk '/## 📝 Changelog/{flag=1;next}/---/{if(flag==1)exit}flag' README.md)
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           name: Release ${{ steps.get_version.outputs.VERSION }}
           body: |
-            ## What's Changed
-            ${{ steps.changelog_reader.outputs.changes }}
+            ${{ steps.extract_changelog.outputs.CHANGELOG }}
             
             ## Installation
             1. Install [Tampermonkey](https://www.tampermonkey.net/) or other userscript manager
