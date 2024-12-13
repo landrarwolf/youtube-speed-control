@@ -3,44 +3,43 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # 当推送符合 'v*' 格式的标签时触发
 
 # 添加权限配置
 permissions:
-  contents: write
+  contents: write  # 设置工作流的权限，允许写入内容
 
 jobs:
   build:
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 版本运行
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # 检出代码到工作流运行环境
 
       - name: Get version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV  # 从标签中获取版本号并存储到环境变量
 
       - name: Extract changelog
         id: extract_changelog
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          # 提取指定版本的更新日志
+          # 从 README.md 中提取当前版本的变更日志
           CHANGELOG=$(sed -n "/- \*\*${VERSION}\*\*/,/- \*\*v/p" README.md | sed '$d')
-          # 如果没找到，尝试不带v的版本号
           if [ -z "$CHANGELOG" ]; then
             VERSION_NO_V=${VERSION#v}
             CHANGELOG=$(sed -n "/- \*\*v${VERSION_NO_V}\*\*/,/- \*\*v/p" README.md | sed '$d')
           fi
-          # 输出到GITHUB_OUTPUT
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # 将变更日志存储到环境变量
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v1  # 使用 GitHub Action 创建发布
         with:
-          name: Release ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_version.outputs.VERSION }}  # 发布名称为版本号
           body: |
             # Changelog
             ${{ steps.extract_changelog.outputs.CHANGELOG }}
@@ -49,9 +48,9 @@ jobs:
             1. Install [Tampermonkey](https://www.tampermonkey.net/) or other userscript manager
             2. [Click here to install](https://github.com/landrarwolf/youtube-speed-control/releases/download/${{ steps.get_version.outputs.VERSION }}/youtube-speed-control.user.js)
           files: |
-            youtube-speed-control.user.js
+            youtube-speed-control.user.js  # 包含在发布中的文件
             LICENSE
-          draft: false
-          prerelease: false
+          draft: false  # 发布不是草稿
+          prerelease: false  # 发布不是预发布
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Token 进行身份验证
