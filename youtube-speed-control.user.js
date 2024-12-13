@@ -2,7 +2,7 @@
 // @name         YouTube Speed Control
 // @name:zh-CN   YouTube 按键加速播放
 // @namespace    https://github.com/landrarwolf/youtube-speed-control
-// @version      0.7
+// @version      0.8
 // @description  Hold right arrow key to speed up YouTube video to 2.5x, without interfering with the forward function
 // @description:zh-CN 在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
 // @icon         https://img.icons8.com/?size=100&id=9991&format=png&color=000000
@@ -91,6 +91,10 @@ function getCurrentLanguage() {
     // 监听键盘按下事件
     document.addEventListener('keydown', function(event) {
         if (event.key === 'ArrowRight') {
+            // 立即阻止事件传播，防止触发 YouTube 的快进功能
+            event.preventDefault();
+            event.stopPropagation();
+
             if (!event.repeat) {
                 pressStartTime = Date.now();
                 speedTimeout = setTimeout(() => {
@@ -101,14 +105,7 @@ function getCurrentLanguage() {
                         isSpeedUp = true;
                         showSpeedIndicator();
                     }
-                    event.preventDefault();
-                    event.stopPropagation();
                 }, config.keyPressDelay);
-            } else {
-                if (Date.now() - pressStartTime > config.keyPressDelay) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
             }
         }
     }, true);
@@ -123,8 +120,12 @@ function getCurrentLanguage() {
                 speedTimeout = null;
             }
             
-            if (pressDuration < 200) {
-                return;
+            // 如果按键时间小于延迟时间，模拟一次快进操作
+            if (pressDuration < config.keyPressDelay) {
+                const video = document.querySelector('video');
+                if (video) {
+                    video.currentTime += 5; // 手动触发5秒快进
+                }
             }
             
             if (isSpeedUp) {
@@ -134,8 +135,6 @@ function getCurrentLanguage() {
                     isSpeedUp = false;
                     hideSpeedIndicator();
                 }
-                event.preventDefault();
-                event.stopPropagation();
             }
         }
     }, true);

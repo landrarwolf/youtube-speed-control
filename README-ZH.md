@@ -1,51 +1,58 @@
-# 按键加速播放 (中文说明)
+# YouTube 按键加速播放
 
-> 🚀 通过按住右箭头键即可快速加速YouTube视频播放 - 简单而强大！
+[![License](https://img.shields.io/github/license/landrarwolf/youtube-speed-control)](LICENSE)
+[![Greasy Fork](https://img.shields.io/badge/Greasy%20Fork-安装-green)](https://update.greasyfork.org/scripts/520580/YouTube%20%E6%8C%89%E9%94%AE%E5%8A%A0%E9%80%9F%E6%92%AD%E6%94%BE.user.js)
+![Platform](https://img.shields.io/badge/平台-YouTube-red)
 
----
+> 🚀 通过按住右方向键即可快速加速YouTube视频播放 - 简单而强大！
 
 ## ✨ 功能特点
-- **快速点按**：点按右箭头 → 快进5秒（YouTube默认功能）
-- **按住加速**：按住右箭头自定义时长 → 自定义倍速播放
-- **智能恢复**：释放按键 → 恢复正常速度
-- **视觉反馈**：清晰的屏幕加速状态指示
-- **可配置选项**：轻松调整加速倍数和按键延迟
+- **快速点按**: 点按右方向键 → 快进5秒（YouTube默认功能）
+- **长按加速**: 按住右方向键超过设定时间 → 可配置的倍速播放
+- **智能恢复**: 松开按键 → 恢复正常播放速度
+- **视觉反馈**: 加速时屏幕上有清晰的速度指示器
+- **可配置选项**: 轻松调整加速倍数和按键延迟时间
 
 ## 🔧 安装方法
-1. 首先安装一个用户脚本管理器：
-   - [Tampermonkey](https://www.tampermonkey.net/)（推荐）
+1. 首先安装一个用户脚本管理器:
+   - [Tampermonkey](https://www.tampermonkey.net/) (推荐)
    - [Violentmonkey](https://violentmonkey.github.io/)
    - [Greasemonkey](https://www.greasespot.net/)
 2. [点击这里安装脚本](https://update.greasyfork.org/scripts/520580/YouTube%20%E6%8C%89%E9%94%AE%E5%8A%A0%E9%80%9F%E6%92%AD%E6%94%BE.user.js)
 
-## 📖 使用说明
-1. 打开任意YouTube视频页面
-2. 按住右箭头键自定义时长激活加速
-3. 释放按键返回正常速度
+## 📖 使用方法
+1. 打开任意YouTube视频
+2. 按住右方向键超过设定时间来激活加速
+3. 松开按键即可恢复正常速度
 4. 加速时会显示速度指示器
-5. 在脚本中调整 `speedMultiplier` 和 `keyPressDelay` 以实现自定义行为
+5. 可在脚本中调整 `speedMultiplier` 和 `keyPressDelay` 来自定义行为
 
 ## 📝 更新日志
+- **v0.8**
+  - 修复了加速功能与快进功能的冲突
+  - 改进了按键处理逻辑
 - **v0.7**
   - 将中文文档分离到 README-ZH.md
   - 改进发布工作流程
 - **v0.6**
-  - 添加可配置的速度倍数和按键延迟选项
+  - 添加了速度倍数和按键延迟的配置选项
 - **v0.5**
-  - 添加多语言支持
-  - 更改默认语言为英文
-  - 添加 GitHub Actions 发布工作流
+  - 添加了速度指示器的国际化支持
+  - 默认语言改为英文
+  - 添加了GitHub Actions发布工作流
 - **v0.4**
-  - 添加速度视觉提示
-  - 优化使用体验
+  - 添加了视觉速度指示器
+  - 改进了用户体验
 - **v0.3**
-  - 修复与 YouTube 快进功能的冲突
+  - 修复了与YouTube快进功能的冲突
 - **v0.2**
-  - 首次发布
+  - 初始发布
 
 ---
 
-## 📄 License & Credits
+## 📄 许可证和致谢
 MIT License © 2024
 
-Icon by [Icons8](https://icons8.com/icon/9991/fast-forward) 
+图标来自 [Icons8](https://icons8.com/icon/9991/fast-forward)
+
+---

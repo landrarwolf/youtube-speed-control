@@ -32,6 +32,9 @@
 5. Adjust `speedMultiplier` and `keyPressDelay` in the script for custom behavior
 
 ## 📝 Changelog
+- **v0.8**
+  - Fixed the conflict between speed-up and forward skip functions
+  - Improved key press handling logic
 - **v0.7**
   - Separated Chinese documentation into README-ZH.md
   - Improved release workflow
