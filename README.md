@@ -6,6 +6,8 @@
 
 > 🚀 Speed up YouTube videos instantly by holding the right arrow key - simple yet powerful!
 
+---
+
 ## ✨ Features
 - **Quick Press**: Tap right arrow → Skip forward 5 seconds (YouTube default)
 - **Hold to Speed**: Hold right arrow for 0.2s → 2.5x playback speed
@@ -41,6 +43,8 @@
 
 > 🚀 通过按住右箭头键即可快速加速YouTube视频播放 - 简单而强大！
 
+---
+
 ## ✨ 功能特点
 - **快速点按**：点按右箭头 → 快进5秒（YouTube默认功能）
 - **按住加速**：按住右箭头0.2秒 → 2.5倍速播放
@@ -72,5 +76,7 @@
 
 ---
 
-## 📄 License
+## 📄 License & Credits
 MIT License © 2024
+
+Icon by [Icons8](https://icons8.com/icon/9991/fast-forward)
