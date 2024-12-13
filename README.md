@@ -14,7 +14,7 @@ A userscript that allows you to speed up YouTube videos by holding the right arr
 
 ## Installation
 1. Install [Tampermonkey](https://www.tampermonkey.net/) or other userscript manager
-2. [Click here](https://greasyfork.org/scripts/你的脚本ID/code/YouTube%20Speed%20Control.user.js) to install the script
+2. [Click here](https://update.greasyfork.org/scripts/520580/YouTube%20%E6%8C%89%E9%94%AE%E5%8A%A0%E9%80%9F%E6%92%AD%E6%94%BE.user.js) to install the script
 
 ## Usage
 1. Visit any YouTube video page
@@ -40,7 +40,7 @@ A userscript that allows you to speed up YouTube videos by holding the right arr
 
 ## 安装
 1. 安装 [Tampermonkey](https://www.tampermonkey.net/) 或其他用户脚本管理器
-2. [点击这里](https://greasyfork.org/scripts/你的脚本ID/code/YouTube%20Speed%20Control.user.js) 安装脚本
+2. [点击这里](https://update.greasyfork.org/scripts/520580/YouTube%20%E6%8C%89%E9%94%AE%E5%8A%A0%E9%80%9F%E6%92%AD%E6%94%BE.user.js) 安装脚本
 
 ## 使用方法
 1. 访问任意 YouTube 视频页面
