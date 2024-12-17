@@ -2,7 +2,7 @@
 // @name         YouTube Speed Control
 // @name:zh-CN   YouTube 按键加速播放
 // @namespace    https://github.com/landrarwolf/youtube-speed-control
-// @version      0.9
+// @version      0.10
 // @description  Hold right arrow key to speed up YouTube video to 2.5x, without interfering with the forward function
 // @description:zh-CN 在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
 // @icon         https://img.icons8.com/?size=100&id=9991&format=png&color=000000
@@ -70,7 +70,7 @@ function getCurrentLanguage() {
             transform: translateX(-50%);
             padding: 8px 16px;
             border-radius: 8px;
-            z-index: 9999;
+            z-index: 2147483647;
             font-size: 14px;
             font-weight: 500;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -102,7 +102,20 @@ function getCurrentLanguage() {
 
         // 使用当前语言的文本
         indicator.textContent = i18n[getCurrentLanguage()].speedIndicator;
-        document.body.appendChild(indicator);
+
+        // 将指示器添加到合适的容器中
+        const container = document.fullscreenElement || document.body;
+        container.appendChild(indicator);
+
+        // 监听全屏变化事件
+        document.addEventListener('fullscreenchange', () => {
+            const newContainer = document.fullscreenElement || document.body;
+            if (indicator.parentElement !== newContainer) {
+                indicator.remove();
+                newContainer.appendChild(indicator);
+            }
+        });
+
         return indicator;
     }
 
