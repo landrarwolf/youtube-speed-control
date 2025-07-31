@@ -32,6 +32,8 @@
 5. Adjust `speedMultiplier` and `keyPressDelay` in the script for custom behavior
 
 ## 📝 Changelog
+- **v0.11**
+  - Bugs fixed
 - **v0.10**
   - Added support for speed indicator in fullscreen mode
   - Improved z-index handling for better visibility
