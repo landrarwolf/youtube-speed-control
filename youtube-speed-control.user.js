@@ -14,7 +14,6 @@
 // @grant        none
 // ==/UserScript==
 
-// abc test  2222
 // 用户可配置选项
 const config = {
     speedMultiplier: 2.5, // 加速倍数
