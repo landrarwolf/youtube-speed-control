@@ -24,7 +24,18 @@ jobs:
         id: extract_version
         run: |
           # 从userscript文件中提取版本号
+          if [ ! -f "youtube-speed-control.user.js" ]; then
+            echo "错误: 找不到 youtube-speed-control.user.js 文件"
+            exit 1
+          fi
+          
           VERSION=$(grep -o "// @version.*" youtube-speed-control.user.js | sed 's/\/\/ @version[[:space:]]*//')
+          
+          if [ -z "$VERSION" ]; then
+            echo "错误: 无法从 userscript 中提取版本号"
+            exit 1
+          fi
+          
           echo "VERSION=v${VERSION}" >> $GITHUB_OUTPUT
           echo "RAW_VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "发现版本号: v${VERSION}"
