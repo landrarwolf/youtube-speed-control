@@ -22,7 +22,7 @@
    - [Tampermonkey](https://www.tampermonkey.net/) (Recommended)
    - [Violentmonkey](https://violentmonkey.github.io/)
    - [Greasemonkey](https://www.greasespot.net/)
-2. [Click here to install the script](https://update.greasyfork.org/scripts/520580/YouTube%20%E6%8C%89%E9%94%AE%E5%8A%A0%E9%80%9F%E6%92%AD%E6%94%BE.user.js)
+2. [Click here to install the script](https://greasyfork.org/scripts/520580-youtube-speed-control)
 
 ## 📖 Usage
 1. Go to any YouTube video
