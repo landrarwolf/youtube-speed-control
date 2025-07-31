@@ -1,7 +1,7 @@
 ---
 name: Auto Release
 
-'on':
+on:
   push:
     branches: [main]
     paths:
@@ -23,78 +23,93 @@ jobs:
       - name: Validate userscript syntax
         id: validate_script
         run: |
-          # Basic validation of userscript format
           if ! grep -q "// ==UserScript==" youtube-speed-control.user.js; then
             echo "Error: Invalid userscript format - missing UserScript header"
             exit 1
           fi
-
           if ! grep -q "// ==/UserScript==" youtube-speed-control.user.js; then
             echo "Error: Invalid userscript format - missing UserScript footer"
             exit 1
           fi
-
           echo "✅ Userscript format validation passed"
 
       - name: Extract version from userscript
         id: extract_version
         run: |
-          # Extract version number from userscript file
-          if [ ! -f "youtube-speed-control.user.js" ]; then
-            echo "Error: youtube-speed-control.user.js file not found"
-            exit 1
-          fi
-
-          VERSION=$(grep -o "// @version.*" youtube-speed-control.user.js | \
-            sed 's/\/\/ @version[[:space:]]*//')
-
+          VERSION=$(grep -o "// @version.*" youtube-speed-control.user.js | sed 's/\/\/ @version[[:space:]]*//')
           if [ -z "$VERSION" ]; then
             echo "Error: Unable to extract version from userscript"
             exit 1
           fi
-
-          # Validate semantic versioning format
           if ! echo "$VERSION" | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$'; then
             echo "Error: Version $VERSION is not in semantic versioning format"
             exit 1
           fi
-
-          echo "VERSION=v${VERSION}" >> $GITHUB_OUTPUT
-          echo "RAW_VERSION=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Detected version: v${VERSION}"
+          TAG="v$VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+          echo "Detected version: $TAG"
 
       - name: Check if tag exists
         id: check_tag
         run: |
-          VERSION="${{ steps.extract_version.outputs.VERSION }}"
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+          TAG="${{ steps.extract_version.outputs.TAG }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "TAG_EXISTS=true" >> $GITHUB_OUTPUT
-            echo "Tag $VERSION already exists"
+            echo "Tag $TAG already exists"
           else
             echo "TAG_EXISTS=false" >> $GITHUB_OUTPUT
-            echo "Tag $VERSION does not exist, will create new release"
+            echo "Tag $TAG does not exist, will create new release"
           fi
 
-      - name: Create tag and release
+      - name: Create tag
         if: steps.check_tag.outputs.TAG_EXISTS == 'false'
         run: |
-          VERSION="${{ steps.extract_version.outputs.VERSION }}"
-          RAW_VERSION="${{ steps.extract_version.outputs.RAW_VERSION }}"
-
-          # Configure git user
+          TAG="${{ steps.extract_version.outputs.TAG }}"
           git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG - Auto-generated from userscript version"
+          git push origin "$TAG"
+          echo "Created and pushed tag $TAG"
 
-          # Create and push tag
-          git tag -a "$VERSION" \
-            -m "Release $VERSION - Auto-generated from userscript version"
-          git push origin "$VERSION"
-
-          echo "Created and pushed tag $VERSION"
-
-      - name: Wait for release workflow
-        if: steps.check_tag.outputs.TAG_EXISTS == 'false'
+      - name: Extract changelog from README
+        id: extract_changelog
         run: |
-          echo "Tag created, existing release.yml workflow will trigger"
-          echo "Version: ${{ steps.extract_version.outputs.VERSION }}"
+          TAG="${{ steps.extract_version.outputs.TAG }}"
+          VERSION="${{ steps.extract_version.outputs.VERSION }}"
+          CHANGELOG=$(awk '/- \*\*'"${VERSION}"'\*\*/{p=NR+2}(NR<=p){print}' README.md)
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Validate release assets
+        run: |
+          if [ ! -f "youtube-speed-control.user.js" ]; then
+            echo "Error: youtube-speed-control.user.js not found"
+            exit 1
+          fi
+          if [ ! -f "LICENSE" ]; then
+            echo "Error: LICENSE file not found"
+            exit 1
+          fi
+          echo "✅ All required release assets found"
+
+      - name: Create or Update Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.extract_version.outputs.TAG }}
+          name: Release ${{ steps.extract_version.outputs.TAG }}
+          body: |
+            # Changelog
+            ${{ steps.extract_changelog.outputs.CHANGELOG }}
+
+            # Installation
+            1. Install [Tampermonkey](https://www.tampermonkey.net/)
+            2. [Install Script](https://github.com/landrarwolf/youtube-speed-control/releases/download/${{ steps.extract_version.outputs.TAG }}/youtube-speed-control.user.js)
+          files: |
+            youtube-speed-control.user.js
+            LICENSE
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
