@@ -32,6 +32,9 @@
 5. Adjust `speedMultiplier` and `keyPressDelay` in the script for custom behavior
 
 ## 📝 Changelog
+- **v0.12**
+  - Added automated workflow for releasing when JS file is updated
+  - Fixed workflow to automatically detect version changes and create releases
 - **v0.11**
   - Bugs fixed
 - **v0.10**
