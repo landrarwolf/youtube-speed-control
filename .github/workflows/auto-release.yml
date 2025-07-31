@@ -1,0 +1,75 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'youtube-speed-control.user.js'
+
+# 添加权限配置
+permissions:
+  contents: write
+
+jobs:
+  check-and-release:
+    name: Check Version and Auto Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史，用于比较
+
+      - name: Extract version from userscript
+        id: extract_version
+        run: |
+          # 从userscript文件中提取版本号
+          if [ ! -f "youtube-speed-control.user.js" ]; then
+            echo "错误: 找不到 youtube-speed-control.user.js 文件"
+            exit 1
+          fi
+          
+          VERSION=$(grep -o "// @version.*" youtube-speed-control.user.js | sed 's/\/\/ @version[[:space:]]*//')
+          
+          if [ -z "$VERSION" ]; then
+            echo "错误: 无法从 userscript 中提取版本号"
+            exit 1
+          fi
+          
+          echo "VERSION=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "RAW_VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "发现版本号: v${VERSION}"
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          VERSION="${{ steps.extract_version.outputs.VERSION }}"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_OUTPUT
+            echo "标签 $VERSION 已存在"
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_OUTPUT
+            echo "标签 $VERSION 不存在，将创建新版本"
+          fi
+
+      - name: Create tag and release
+        if: steps.check_tag.outputs.TAG_EXISTS == 'false'
+        run: |
+          VERSION="${{ steps.extract_version.outputs.VERSION }}"
+          RAW_VERSION="${{ steps.extract_version.outputs.RAW_VERSION }}"
+          
+          # 配置git用户
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # 创建并推送标签
+          git tag -a "$VERSION" -m "Release $VERSION - Auto-generated from userscript version"
+          git push origin "$VERSION"
+          
+          echo "已创建并推送标签 $VERSION"
+
+      - name: Wait for release workflow
+        if: steps.check_tag.outputs.TAG_EXISTS == 'false'
+        run: |
+          echo "标签已创建，现有的 release.yml 工作流将自动触发并创建发布"
+          echo "版本: ${{ steps.extract_version.outputs.VERSION }}"
