@@ -16,13 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Validate userscript syntax
         id: validate_script
         run: |
+          node --check youtube-speed-control.user.js
           if ! grep -q "// ==UserScript==" youtube-speed-control.user.js; then
             echo "Error: Invalid userscript format - missing UserScript header"
             exit 1
@@ -32,6 +33,9 @@ jobs:
             exit 1
           fi
           echo "✅ Userscript format validation passed"
+
+      - name: Run behavior checks
+        run: node --test tests/userscript.test.cjs
 
       - name: Extract version from userscript
         id: extract_version
@@ -55,29 +59,24 @@ jobs:
         run: |
           TAG="${{ steps.extract_version.outputs.TAG }}"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "TAG_EXISTS=true" >> $GITHUB_OUTPUT
-            echo "Tag $TAG already exists"
-          else
-            echo "TAG_EXISTS=false" >> $GITHUB_OUTPUT
-            echo "Tag $TAG does not exist, will create new release"
+            echo "Error: Tag $TAG already exists. Bump @version before changing the userscript."
+            exit 1
           fi
-
-      - name: Create tag
-        if: steps.check_tag.outputs.TAG_EXISTS == 'false'
-        run: |
-          TAG="${{ steps.extract_version.outputs.TAG }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG" -m "Release $TAG - Auto-generated from userscript version"
-          git push origin "$TAG"
-          echo "Created and pushed tag $TAG"
+          echo "Tag $TAG does not exist, will create new release"
 
       - name: Extract changelog from README
         id: extract_changelog
         run: |
-          TAG="${{ steps.extract_version.outputs.TAG }}"
           VERSION="${{ steps.extract_version.outputs.VERSION }}"
-          CHANGELOG=$(awk '/- \*\*'"${VERSION}"'\*\*/{p=NR+2}(NR<=p){print}' README.md)
+          CHANGELOG=$(awk -v heading="- **v$VERSION**" '
+            $0 == heading { capture = 1 }
+            capture && /^- \*\*v/ && $0 != heading { exit }
+            capture { print }
+          ' README.md)
+          if [ -z "$CHANGELOG" ]; then
+            echo "Error: No changelog found for v$VERSION"
+            exit 1
+          fi
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -94,8 +93,17 @@ jobs:
           fi
           echo "✅ All required release assets found"
 
-      - name: Create or Update Release
-        uses: softprops/action-gh-release@v1
+      - name: Create tag
+        run: |
+          TAG="${{ steps.extract_version.outputs.TAG }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG - Auto-generated from userscript version"
+          git push origin "$TAG"
+          echo "Created and pushed tag $TAG"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.extract_version.outputs.TAG }}
           name: Release ${{ steps.extract_version.outputs.TAG }}
@@ -109,7 +117,6 @@ jobs:
           files: |
             youtube-speed-control.user.js
             LICENSE
+          fail_on_unmatched_files: true
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

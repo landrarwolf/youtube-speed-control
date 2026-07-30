@@ -2,7 +2,7 @@
 // @name         YouTube Speed Control
 // @name:zh-CN   YouTube 按键加速播放
 // @namespace    https://github.com/landrarwolf/youtube-speed-control
-// @version      0.12
+// @version      0.13
 // @description  Hold right arrow key to speed up YouTube video to 2.5x, without interfering with the forward function
 // @description:zh-CN 在YouTube上按住右箭头键时视频加速到2.5倍速，避免与快进功能冲突
 // @icon         https://img.icons8.com/?size=100&id=9991&format=png&color=000000
@@ -57,6 +57,7 @@ function getCurrentLanguage() {
     let isSpeedUp = false;  // 标记是否处于加速状态
     let pressStartTime = 0;  // 记录按键开始时间
     let speedIndicator = null; // 速度提示元素
+    let activeVideo = null; // 当前由脚本控制的视频
     
     // 事件监听器引用，用于清理
     let themeChangeListener = null;
@@ -75,6 +76,25 @@ function getCurrentLanguage() {
             console.error('获取视频元素时出错:', error);
             return null;
         }
+    }
+
+    // 输入文字或使用组合快捷键时，不接管右方向键
+    function shouldHandleKey(event) {
+        const target = event.target;
+        const isEditable = target instanceof Element && (
+            ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
+            target.isContentEditable ||
+            target.closest('[contenteditable="true"], [role="textbox"]')
+        );
+
+        return event.key === 'ArrowRight' &&
+            !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey &&
+            !isEditable;
+    }
+
+    function consumeKeyEvent(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
     }
 
     // 创建速度提示元素
@@ -99,6 +119,7 @@ function getCurrentLanguage() {
                 transition: all 0.2s ease;
                 backdrop-filter: blur(8px);
                 -webkit-backdrop-filter: blur(8px);
+                pointer-events: none;
             `;
 
             // 创建样式更新函数
@@ -129,6 +150,8 @@ function getCurrentLanguage() {
 
             // 使用当前语言的文本
             indicator.textContent = i18n[getCurrentLanguage()].speedIndicator;
+            indicator.setAttribute('role', 'status');
+            indicator.setAttribute('aria-live', 'polite');
 
             // 将指示器添加到合适的容器中
             const container = document.fullscreenElement || document.body;
@@ -166,6 +189,7 @@ function getCurrentLanguage() {
                 speedIndicator = createSpeedIndicator();
             }
             speedIndicator.style.display = 'block';
+            speedIndicator.setAttribute('aria-hidden', 'false');
             requestAnimationFrame(() => {
                 speedIndicator.style.opacity = '1';
                 speedIndicator.style.transform = 'translateX(-50%) translateY(0)';
@@ -184,6 +208,7 @@ function getCurrentLanguage() {
                 setTimeout(() => {
                     if (speedIndicator) {
                         speedIndicator.style.display = 'none';
+                        speedIndicator.setAttribute('aria-hidden', 'true');
                     }
                 }, 200);
             }
@@ -194,12 +219,17 @@ function getCurrentLanguage() {
 
     // 监听键盘按下事件
     document.addEventListener('keydown', function (event) {
-        if (event.key === 'ArrowRight') {
-            // 立即阻止事件传播，防止触发 YouTube 的快进功能
-            event.preventDefault();
-            event.stopPropagation();
+        if (shouldHandleKey(event)) {
+            const video = getVideoElement();
+            if (!video) {
+                return;
+            }
 
-            if (!event.repeat) {
+            // 完全接管本次按键，避免 YouTube 的长按处理与字幕层发生冲突
+            consumeKeyEvent(event);
+
+            if (!event.repeat && !activeVideo) {
+                activeVideo = video;
                 pressStartTime = Date.now();
                 
                 // 清除之前的定时器以避免竞态条件
@@ -209,11 +239,11 @@ function getCurrentLanguage() {
                 }
                 
                 speedTimeout = setTimeout(() => {
+                    speedTimeout = null;
                     try {
-                        const video = getVideoElement();
-                        if (video) {
-                            normalSpeed = video.playbackRate;
-                            video.playbackRate = config.speedMultiplier;
+                        if (activeVideo) {
+                            normalSpeed = activeVideo.playbackRate;
+                            activeVideo.playbackRate = config.speedMultiplier;
                             isSpeedUp = true;
                             showSpeedIndicator();
                         }
@@ -227,7 +257,8 @@ function getCurrentLanguage() {
 
     // 监听键盘释放事件
     document.addEventListener('keyup', function (event) {
-        if (event.key === 'ArrowRight') {
+        if (event.key === 'ArrowRight' && activeVideo) {
+            consumeKeyEvent(event);
             try {
                 const pressDuration = Date.now() - pressStartTime;
 
@@ -237,40 +268,58 @@ function getCurrentLanguage() {
                 }
 
                 // 如果按键时间小于延迟时间，模拟一次快进操作
-                if (pressDuration < config.keyPressDelay) {
-                    const video = getVideoElement();
-                    if (video) {
-                        video.currentTime += 5; // 手动触发5秒快进
-                    }
+                if (pressDuration < config.keyPressDelay && !isSpeedUp) {
+                    const nextTime = activeVideo.currentTime + 5;
+                    activeVideo.currentTime = Number.isFinite(activeVideo.duration)
+                        ? Math.min(nextTime, activeVideo.duration)
+                        : nextTime;
                 }
 
                 if (isSpeedUp) {
-                    const video = getVideoElement();
-                    if (video) {
-                        video.playbackRate = normalSpeed;
-                        isSpeedUp = false;
-                        hideSpeedIndicator();
-                    }
+                    activeVideo.playbackRate = normalSpeed;
+                    isSpeedUp = false;
+                    hideSpeedIndicator();
                 }
+
+                activeVideo = null;
             } catch (error) {
                 console.error('处理按键释放时出错:', error);
             }
         }
     }, true);
 
+    // 松键事件可能在切换标签页或窗口时丢失，主动恢复原速度
+    function cancelSpeedUp() {
+        if (speedTimeout) {
+            clearTimeout(speedTimeout);
+            speedTimeout = null;
+        }
+
+        if (activeVideo && isSpeedUp) {
+            activeVideo.playbackRate = normalSpeed;
+            isSpeedUp = false;
+            hideSpeedIndicator();
+        }
+
+        activeVideo = null;
+    }
+
+    window.addEventListener('blur', cancelSpeedUp);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelSpeedUp();
+        }
+    });
+
     // 在 IIFE 内部添加
     const cleanup = () => {
         try {
+            cancelSpeedUp();
+
             // 清理速度提示元素
             if (speedIndicator && speedIndicator.parentNode) {
                 speedIndicator.parentNode.removeChild(speedIndicator);
                 speedIndicator = null;
-            }
-            
-            // 清理定时器
-            if (speedTimeout) {
-                clearTimeout(speedTimeout);
-                speedTimeout = null;
             }
             
             // 清理事件监听器
