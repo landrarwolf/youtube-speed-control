@@ -6,6 +6,7 @@
 # Test files
 test_*
 *.test.js
+.playwright-cli/
 
 # Editor files
 .vscode/

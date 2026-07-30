@@ -32,6 +32,11 @@
 5. Adjust `speedMultiplier` and `keyPressDelay` in the script for custom behavior
 
 ## 📝 Changelog
+- **v0.13**
+  - Keep arrow-key editing working in search, comments, and other text fields
+  - Restore the previous playback speed when the tab or window loses focus
+  - Prevent YouTube's own long-press handler from conflicting with the script
+  - Prevent an existing release from being overwritten without a version bump
 - **v0.12**
   - Added automated workflow for releasing when JS file is updated
   - Fixed workflow to automatically detect version changes and create releases

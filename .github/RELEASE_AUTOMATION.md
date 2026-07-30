@@ -4,27 +4,20 @@ This repository uses GitHub Actions to automatically create releases when JavaSc
 
 ## How It Works
 
-The automated release system consists of two workflows:
+The automated release system uses one workflow:
 
-### 1. Auto Release Workflow (`auto-release.yml`)
+### Auto Release Workflow (`auto-release.yml`)
 
 **Trigger:** When `youtube-speed-control.user.js` is pushed to the `main` branch
 
 **Process:**
 1. Extracts version number from the `@version` tag in the userscript
-2. Validates semantic versioning format (e.g., `1.0`, `1.0.1`)
-3. Checks if a tag for this version already exists
-4. If no tag exists, creates and pushes a new tag
-5. Triggers the release workflow
-
-### 2. Release Workflow (`release.yml`)
-
-**Trigger:** When a tag matching pattern `v*` is pushed
-
-**Process:**
-1. Extracts version from the tag
-2. Pulls changelog from README.md for the specific version
-3. Creates a GitHub release with:
+2. Runs syntax and behavior checks
+3. Validates semantic versioning format (e.g., `1.0`, `1.0.1`)
+4. Checks if a tag for this version already exists
+5. Validates the changelog and release assets
+6. Creates and pushes a new tag only after validation succeeds
+7. Creates a GitHub release with:
    - Version-specific changelog
    - Installation instructions
    - Userscript file and LICENSE as assets
@@ -34,12 +27,12 @@ The automated release system consists of two workflows:
 Versions are managed through the `@version` tag in the userscript header:
 
 ```javascript
-// @version      0.12
+// @version      0.13
 ```
 
 The system:
 - ✅ Supports semantic versioning (e.g., `1.0`, `1.0.1`, `2.1.3`)
-- ✅ Prevents duplicate releases for the same version
+- ✅ Requires a new version for every userscript change
 - ✅ Automatically creates tags and releases
 - ✅ Includes comprehensive error handling
 
